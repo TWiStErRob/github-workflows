@@ -173,10 +173,10 @@ jobs:
         with:
           debug: ${{ secrets.ACTIONS_STEP_DEBUG || false }}
           script: |
-            const buildScanUrl = env.PARAM_BUILD_SCAN_URL || undefined; // Empty string is falsy.
-            const success = env.PARAM_GRADLE_RESULT_SUCCESS === "true";
-            const description = env.PARAM_GRADLE_RESULT_TEXT;
-            const statusName = env.PARAM_CHECK_NAME_GRADLE;
+            const buildScanUrl = process.env.PARAM_BUILD_SCAN_URL || undefined; // Empty string is falsy.
+            const success = process.env.PARAM_GRADLE_RESULT_SUCCESS === "true";
+            const description = process.env.PARAM_GRADLE_RESULT_TEXT;
+            const statusName = process.env.PARAM_CHECK_NAME_GRADLE;
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
