@@ -1,0 +1,30 @@
+name: "CI"
+
+on:
+  push
+
+jobs:
+  action-validator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    permissions:
+      # actions/checkout
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        file:
+          - .github/workflows/ci.yml # self-validation.
+          - .github/workflows/validate.yml
+
+    steps:
+
+      - name: "Install action-validator"
+        working-directory: action-validator
+        run: npm install
+
+      - name: "Validate workflow file."
+        working-directory: action-validator
+        run: npx action-validator ${{ github.workspace }}/${{ matrix.file }}
