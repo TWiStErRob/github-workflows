@@ -107,10 +107,6 @@ on:
           Use {0} to represent `inputs.android-api`.
           Use {1} to represent `inputs.android-image-type`.
           Use {2} to represent `inputs.android-image-arch`.
-#    secrets:
-#      token:
-#        required: true
-#        description: "GitHub token with access to the calling repository."
 
 jobs:
   android:
