@@ -5,6 +5,7 @@ on:
 
 jobs:
   action-validator:
+    name: "Validate ${{ matrix.workflow-file }}"
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -15,9 +16,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        file:
-          - .github/workflows/ci.yml # self-validation.
-          - .github/workflows/validate.yml
+        workflow-file:
+          - ci.yml # self-validation.
+          - validate.yml
 
     steps:
       - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
@@ -29,4 +30,4 @@ jobs:
 
       - name: "Validate workflow file."
         working-directory: action-validator
-        run: npx action-validator ${{ github.workspace }}/${{ matrix.file }}
+        run: npx action-validator ${{ github.workspace }}/.github/workflows/${{ matrix.workflow-file }}
