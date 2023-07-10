@@ -26,7 +26,10 @@ on:
       # > system-images;android-15;default;x86
       android-image-arch:
         required: false
-        type: string
+        type: choice
+        options:
+          - 'x86'
+          - 'x86_64'
         default: ${{ inputs.android-api >= 21 && 'x86_64' || 'x86' }}
         description: |
           Android emulator image architecture.
