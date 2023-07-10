@@ -1,5 +1,5 @@
 {
   "devDependencies": {
-    "@action-validator/cli": "^0.5.2"
+    "@action-validator/cli": "0.5.2"
   }
 }
