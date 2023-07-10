@@ -186,11 +186,11 @@ jobs:
             ${{ github.workspace }}/**/build/outputs/connected_android_test_additional_output/
             !**/*:*
 
-      - name: "Upload '${{ format(inputs.name-artifact-merged, inputs.android-api} }}' artifact."
+      - name: "Upload '${{ format(inputs.name-artifact-merged, inputs.android-api, inputs.android-image-type, inputs.android-image-arch) }}' artifact."
         if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
-          name: '${{ format(inputs.name-artifact-merged, inputs.android-api} }}'
+          name: '${{ format(inputs.name-artifact-merged, inputs.android-api, inputs.android-image-type, inputs.android-image-arch) }}'
           # Exclude names with colon: https://issuetracker.google.com/issues/223643506
           path: |
             ${{ github.workspace }}/build/androidTest-results/
