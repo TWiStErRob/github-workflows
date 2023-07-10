@@ -1,7 +1,11 @@
 name: "CI"
 
 on:
-  push
+  push:
+    paths:
+      - '.github/workflows/validate.yml'
+      - '.github/workflows/instrumentation.yml'
+      - '.github/workflows/ci.yml'
 
 jobs:
   action-validator:
