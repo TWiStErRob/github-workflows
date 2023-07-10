@@ -3,6 +3,7 @@ name: "🧪 Instrumentation Test"
 on:
   workflow_call:
     inputs:
+
       script:
         required: true
         type: string
@@ -12,10 +13,12 @@ on:
           Multiple lines are allowed, but due to reactivecircus/android-emulator-runner's behavior
           each line will be executed separately, so no backslashes at end of lines.
           Note: in yaml, you can still use > to write multiple lines that end up as a single-line string.
+
       android-api:
         required: true
         type: number
         description: "Android API level to run the tests on. See https://apilevels.com/. [14, ..., 34]"
+
       android-image-type:
         required: false
         type: string
@@ -31,13 +34,7 @@ on:
            * google-tv
            * android-desktop
            * android-tv
-      # Nowadays with AndroidX libraries having API 14 as minimum,
-      # API 15 is the first possible emulator that works well on GitHub Actions' architectures:
-      # > system-images;android-10;default;armeabi-v7a
-      # > system-images;android-10;default;x86
-      # > system-images;android-14;default;armeabi-v7a
-      # > system-images;android-15;default;armeabi-v7a
-      # > system-images;android-15;default;x86
+
       android-image-arch:
         required: false
         type: string
@@ -45,11 +42,21 @@ on:
         description: |
           Android emulator image architecture.
           Run `sdkmanager --list | grep "system-images;android-"` to see what's available.
+          
+          Nowadays with AndroidX libraries having API 14 as minimum,
+          API 15 is the first possible emulator that works well on GitHub Actions' architectures:
+          > system-images;android-10;default;armeabi-v7a
+          > system-images;android-10;default;x86
+          > system-images;android-14;default;armeabi-v7a
+          > system-images;android-15;default;armeabi-v7a
+          > system-images;android-15;default;x86 <-- this one!
+
           Potential values:
             armeabi-v7a
             arm64-v8a
             x86
             x86_64
+
       timeout-minutes:
         required: false
         type: number
@@ -57,12 +64,14 @@ on:
         description: |
           Number of minutes to wait for the `inputs.script` to finish running on the emulator.
           Might be slightly less because installing, configuring and starting up the emulator might take minutes. 
+
       java-version:
         required: false
         type: number
         default: 17
         description: |
           See actions/setup-java's java-version. Will use zulu distribution.
+
       junit5:
         required: false
         type: boolean
@@ -71,6 +80,7 @@ on:
           Whether the instrumentation is running JUnit 5 or not.
           Android-JUnit 5 uses Java 8, so it's only possible to use from API 26 onwards.
           This makes no behavioral change yet to any of the steps (yet).
+
       name-artifact-fine-grained:
         required: false
         type: string
@@ -80,6 +90,7 @@ on:
           Use {0} to represent `inputs.android-api`.
           Use {1} to represent `inputs.android-image-type`.
           Use {2} to represent `inputs.android-image-arch`.
+
       name-artifact-merged:
         required: false
         type: string
@@ -89,6 +100,7 @@ on:
           Use {0} to represent `inputs.android-api`.
           Use {1} to represent `inputs.android-image-type`.
           Use {2} to represent `inputs.android-image-arch`.
+
       name-check-results:
         required: false
         type: string
@@ -98,6 +110,7 @@ on:
           Use {0} to represent `inputs.android-api`.
           Use {1} to represent `inputs.android-image-type`.
           Use {2} to represent `inputs.android-image-arch`.
+
       name-check-gradle:
         required: false
         type: string
@@ -108,7 +121,9 @@ on:
           Use {1} to represent `inputs.android-image-type`.
           Use {2} to represent `inputs.android-image-arch`.
 
+
 jobs:
+
   android:
     name: "API ${{ inputs.android-api }}"
     runs-on: macos-latest
