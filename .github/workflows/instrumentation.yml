@@ -3,20 +3,34 @@ name: "🧪 Instrumentation Test"
 on:
   workflow_call:
     inputs:
+      script:
+        required: true
+        type: string
+        description: |
+          Lines of script to execute while the emulator is running.
+          Usually this is a `gradlew connectedCheck` command in some form.
+          Multiple lines are allowed, but due to reactivecircus/android-emulator-runner's behavior
+          each line will be executed separately, so no backslashes at end of lines.
+          Note: in yaml, you can still use > to write multiple lines that end up as a single-line string.
       android-api:
         required: true
         type: number
         description: "Android API level to run the tests on. See https://apilevels.com/. [14, ..., 34]"
-      # Some are not available: https://issuetracker.google.com/issues/267458959
       android-image-type:
         required: false
         type: string
         default: ${{ inputs.android-api >= 32 && 'google_apis' || 'default' }}
         description: |
           Android emulator image type to run the tests on.
+          Run `sdkmanager --list | grep "system-images;android-"` to see what's available.
+          Some types for certain API levels are not available: https://issuetracker.google.com/issues/267458959
           Potential values:
            * default
            * google_apis
+           * google_apis_playstore
+           * google-tv
+           * android-desktop
+           * android-tv
       # Nowadays with AndroidX libraries having API 14 as minimum,
       # API 15 is the first possible emulator that works well on GitHub Actions' architectures:
       # > system-images;android-10;default;armeabi-v7a
@@ -30,9 +44,25 @@ on:
         default: ${{ inputs.android-api >= 21 && 'x86_64' || 'x86' }}
         description: |
           Android emulator image architecture.
+          Run `sdkmanager --list | grep "system-images;android-"` to see what's available.
           Potential values:
+            armeabi-v7a
+            arm64-v8a
             x86
             x86_64
+      timeout-minutes:
+        required: false
+        type: number
+        default: 30
+        description: |
+          Number of minutes to wait for the `inputs.script` to finish running on the emulator.
+          Might be slightly less because installing, configuring and starting up the emulator might take minutes. 
+      java-version:
+        required: false
+        type: number
+        default: 17
+        description: |
+          See actions/setup-java's java-version. Will use zulu distribution.
       junit5:
         required: false
         type: boolean
@@ -86,17 +116,26 @@ jobs:
   android:
     name: "API ${{ inputs.android-api }}"
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+
+    permissions:
+      # actions/checkout
+      contents: read
+      # EnricoMi/publish-unit-test-result-action -> https://github.com/EnricoMi/publish-unit-test-result-action#permissions
+      checks: write
+
     steps:
 
-      - name: "Set up JDK 17."
+      - name: "Set up Java ${{ inputs.java-version }}."
         uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: ${{ inputs.java-version }}
           distribution: zulu
 
       - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
       - name: "Run Instrumentation Tests on emulator."
         id: gradle
@@ -105,15 +144,12 @@ jobs:
           api-level: ${{ inputs.android-api }}
           target: ${{ inputs.android-image-type }}
           arch: ${{ inputs.android-image-arch }}
-          script: >
-            ./gradlew
-            --no-daemon
-            --no-build-cache
-            --continue
-            --stacktrace
-            --scan
-            connectedCheck
-            mergeAndroidReports
+          profile: pixel
+          # Ensure that /storage/sdcard exists, without this the stock DocumentsUI will be non-functional.
+          sdcard-path-or-size: 100M
+          script: |
+            adb devices -l
+            ${{ inputs.script }}
 
       - name: "Publish 'Gradle' result and Build Scan URL."
         if: (success() || failure()) && steps.gradle != null && steps.gradle.outputs.result-success != null
@@ -145,6 +181,7 @@ jobs:
           name: '${{ format(inputs.name-artifact-fine-grained, inputs.android-api, inputs.android-image-type, inputs.android-image-arch) }}'
           # Exclude names with colon: https://issuetracker.google.com/issues/223643506
           path: |
+            ${{ github.workspace }}/**/build/reports/androidTests/connected/
             ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/
             ${{ github.workspace }}/**/build/outputs/connected_android_test_additional_output/
             !**/*:*
