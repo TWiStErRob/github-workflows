@@ -19,6 +19,7 @@ jobs:
         workflow-file:
           - ci.yml # self-validation.
           - validate.yml
+          - instrumentation.yml
 
     steps:
       - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
