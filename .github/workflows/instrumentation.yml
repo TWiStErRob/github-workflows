@@ -114,7 +114,7 @@ on:
       name-check-gradle:
         required: false
         type: string
-        default: 'CI / Instrumentation Tests {0} / Gradle'
+        default: 'CI / Instrumentation Tests on / {0} / API {0} / Gradle'
         description: |
           Format string for the name of the check suite created in the workflow run.
           Use {0} to represent `inputs.android-api`.
