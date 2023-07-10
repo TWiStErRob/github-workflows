@@ -1,0 +1,4 @@
+# this: steps
+
+- name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
+  uses: actions/checkout@v3
