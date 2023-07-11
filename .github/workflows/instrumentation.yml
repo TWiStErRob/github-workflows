@@ -186,6 +186,24 @@ jobs:
             const success = process.env.PARAM_GRADLE_RESULT_SUCCESS === "true";
             const description = process.env.PARAM_GRADLE_RESULT_TEXT;
             const statusName = process.env.PARAM_CHECK_NAME_GRADLE;
+            if (!buildScanUrl) {
+                // > Publishing build scan...
+                // > Publishing build scan failed due to network error 'java.net.SocketException: Unexpected end of file from server' (2 retries remaining)...
+                // > Publishing build scan failed due to network error 'java.net.SocketException: Unexpected end of file from server' (1 retry remaining)...
+                // >
+                // >   A network error occurred.
+                // >
+                // >   If you require assistance with this problem, please report it via https://gradle.com/help/plugin and include the following information via copy/paste.
+                // >
+                // > ----------
+                // > Gradle version: 8.2.1
+                // > Plugin version: 3.13.4
+                // > Request URL: https://status.gradle.com
+                // > Request ID: 1eef0fbd-9780-4d90-8705-d1582251572f
+                // > Exception: java.net.SocketException: Unexpected end of file from server
+                // > ----------
+                core.warning(`No build scan URL found, ${statusName} will have no link.`);
+            }
             await github.rest.repos.createCommitStatus({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
