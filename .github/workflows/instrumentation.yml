@@ -134,6 +134,8 @@ jobs:
       contents: read
       # EnricoMi/publish-unit-test-result-action -> https://github.com/EnricoMi/publish-unit-test-result-action#permissions
       checks: write
+      # actions/github-script publishing Gradle status
+      statuses: write
 
     steps:
 
