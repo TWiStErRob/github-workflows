@@ -38,7 +38,7 @@ on:
       android-image-type:
         required: false
         type: string
-        default: ${{ inputs.android-api >= 32 && 'google_apis' || 'default' }}
+        default: ${{ format('{0} >= 32 && ''google_apis'' || ''default'' ({1})', inputs.android-api, toJSON(inputs)) }}
         description: |
           Android emulator image type to run the tests on.
           Run `sdkmanager --list | grep "system-images;android-"` to see what's available.
