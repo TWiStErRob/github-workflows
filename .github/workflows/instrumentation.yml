@@ -38,12 +38,13 @@ on:
       android-image-type:
         required: false
         type: string
-        default: ${{ format('{0} >= 32 && ''google_apis'' || ''default'' ({1})', inputs.android-api, toJSON(inputs)) }}
+        default: auto
         description: |
           Android emulator image type to run the tests on.
           Run `sdkmanager --list | grep "system-images;android-"` to see what's available.
           Some types for certain API levels are not available: https://issuetracker.google.com/issues/267458959
           Potential values:
+           - auto (special value, will pick the simplest image type available)
            - default
            - google_apis
            - google_apis_playstore
@@ -54,7 +55,7 @@ on:
       android-image-arch:
         required: false
         type: string
-        default: ${{ inputs.android-api >= 21 && 'x86_64' || 'x86' }}
+        default: auto
         description: |
           Android emulator image architecture.
           Run `sdkmanager --list | grep "system-images;android-"` to see what's available.
@@ -68,10 +69,11 @@ on:
           > system-images;android-15;default;x86 <-- this one!
 
           Potential values:
-            - armeabi-v7a
-            - arm64-v8a
-            - x86
-            - x86_64
+           - auto (special value, will pick the fastest architecture available)
+           - armeabi-v7a
+           - arm64-v8a
+           - x86
+           - x86_64
 
       timeout-minutes:
         required: false
@@ -103,9 +105,9 @@ on:
         default: 'Instrumentation Test Results {0}'
         description: |
           Format string for the name of the artifact to be uploaded to GitHub.
-           - Use {0} to represent `android-api`.
-           - Use {1} to represent `android-image-type`.
-           - Use {2} to represent `android-image-arch`.
+           - Use {0} to represent the actual `android-api`.
+           - Use {1} to represent the actual `android-image-type`, after resolving auto.
+           - Use {2} to represent the actual `android-image-arch`, after resolving auto.
 
       name-artifact-merged:
         required: false
@@ -113,9 +115,9 @@ on:
         default: 'Instrumentation Merged Results {0}'
         description: |
           Format string for the name of the artifact to be uploaded to GitHub.
-           - Use {0} to represent `android-api`.
-           - Use {1} to represent `android-image-type`.
-           - Use {2} to represent `android-image-arch`.
+           - Use {0} to represent the actual `android-api`.
+           - Use {1} to represent the actual `android-image-type`, after resolving auto.
+           - Use {2} to represent the actual `android-image-arch`, after resolving auto.
 
       name-check-results:
         required: false
@@ -123,9 +125,9 @@ on:
         default: '🔔 Test: Instrumentation Results {0}'
         description: |
           Format string for the name of the check suite created in the workflow run.
-           - Use {0} to represent `android-api`.
-           - Use {1} to represent `android-image-type`.
-           - Use {2} to represent `android-image-arch`.
+           - Use {0} to represent the actual `android-api`.
+           - Use {1} to represent the actual `android-image-type`, after resolving auto.
+           - Use {2} to represent the actual `android-image-arch`, after resolving auto.
 
       name-check-gradle:
         required: false
@@ -133,9 +135,9 @@ on:
         default: 'CI / Instrumentation Tests on / {0} / API {0} / Gradle'
         description: |
           Format string for the name of the check suite created in the workflow run.
-           - Use {0} to represent `android-api`.
-           - Use {1} to represent `android-image-type`.
-           - Use {2} to represent `android-image-arch`.
+           - Use {0} to represent the actual `android-api`.
+           - Use {1} to represent the actual `android-image-type`, after resolving auto.
+           - Use {2} to represent the actual `android-image-arch`, after resolving auto.
 
 
 jobs:
@@ -171,8 +173,8 @@ jobs:
         run: |
           echo "api-level=${{ inputs.android-api }}" >> $GITHUB_OUTPUT
           # TODEL Some are not available: https://issuetracker.google.com/issues/267458959
-          echo "target=${{ inputs.android-image-type }}" >> $GITHUB_OUTPUT
-          echo "arch=${{ inputs.android-image-arch }}" >> $GITHUB_OUTPUT
+          echo "target=${{ inputs.android-api >= 32 && 'google_apis' || 'default' }}" >> $GITHUB_OUTPUT
+          echo "arch=${{ inputs.android-api >= 21 && 'x86_64' || 'x86' }}" >> $GITHUB_OUTPUT
           echo "profile=pixel" >> $GITHUB_OUTPUT
           # Ensure that /storage/sdcard exists, without this the stock DocumentsUI will be non-functional.
           echo "sdcard=100M" >> $GITHUB_OUTPUT
@@ -241,7 +243,7 @@ jobs:
           PARAM_BUILD_SCAN_URL: ${{ steps.gradle.outputs.build-scan-url }}
           PARAM_GRADLE_RESULT_SUCCESS: ${{ steps.gradle.outputs.result-success }}
           PARAM_GRADLE_RESULT_TEXT: ${{ steps.gradle.outputs.result-text }}
-          PARAM_CHECK_NAME_GRADLE: ${{ format(inputs.name-check-gradle, inputs.android-api, inputs.android-image-type, inputs.android-image-arch) }}
+          PARAM_CHECK_NAME_GRADLE: ${{ format(inputs.name-check-gradle, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}
         with:
           debug: ${{ secrets.ACTIONS_STEP_DEBUG || false }}
           script: |
@@ -287,11 +289,11 @@ jobs:
                 target_url: buildScanUrl,
             });
 
-      - name: "Upload '${{ format(inputs.name-artifact-fine-grained, inputs.android-api, inputs.android-image-type, inputs.android-image-arch) }}' artifact."
+      - name: "Upload '${{ format(inputs.name-artifact-fine-grained, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' artifact."
         if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
-          name: '${{ format(inputs.name-artifact-fine-grained, inputs.android-api, inputs.android-image-type, inputs.android-image-arch) }}'
+          name: '${{ format(inputs.name-artifact-fine-grained, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
           # Exclude names with colon: https://issuetracker.google.com/issues/223643506
           path: |
             ${{ github.workspace }}/**/build/reports/androidTests/connected/
@@ -299,21 +301,21 @@ jobs:
             ${{ github.workspace }}/**/build/outputs/connected_android_test_additional_output/
             !**/*:*
 
-      - name: "Upload '${{ format(inputs.name-artifact-merged, inputs.android-api, inputs.android-image-type, inputs.android-image-arch) }}' artifact."
+      - name: "Upload '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' artifact."
         if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
-          name: '${{ format(inputs.name-artifact-merged, inputs.android-api, inputs.android-image-type, inputs.android-image-arch) }}'
+          name: '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
           # Exclude names with colon: https://issuetracker.google.com/issues/223643506
           path: |
             ${{ github.workspace }}/build/androidTest-results/
             !**/*:*
 
-      - name: "Publish '${{ format(inputs.name-check-results, inputs.android-api, inputs.android-image-type, inputs.android-image-arch) }}' check suite."
+      - name: "Publish '${{ format(inputs.name-check-results, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' check suite."
         if: success() || failure()
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         with:
-          check_name: '${{ format(inputs.name-check-results, inputs.android-api, inputs.android-image-type, inputs.android-image-arch) }}'
+          check_name: '${{ format(inputs.name-check-results, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
           comment_mode: off
           report_individual_runs: true
           test_changes_limit: 0
