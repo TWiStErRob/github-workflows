@@ -178,31 +178,39 @@ jobs:
           echo "profile=pixel" >> $GITHUB_OUTPUT
           # Ensure that /storage/sdcard exists, without this the stock DocumentsUI will be non-functional.
           echo "sdcard=100M" >> $GITHUB_OUTPUT
+          # See https://developer.android.com/studio/run/emulator-commandline#common
           echo "options=-no-window -gpu swiftshader_indirect -noaudio -no-boot-anim" >> $GITHUB_OUTPUT
 
       - name: "Calculate cache properties"
         id: cache-helper
-        # needs: emulator
-        run: |
-          echo "package=system-images;android-${{ steps.emulator.outputs.api-level }};${{ steps.emulator.outputs.target }};${{ steps.emulator.outputs.arch }}" >> $GITHUB_OUTPUT
-          echo "device=${{ steps.emulator.outputs.profile }}-${{ steps.emulator.outputs.sdcard }}" >> $GITHUB_OUTPUT
-
-      - name: "Load AVD cache"
-        id: avd-cache
-        # needs: cache-helper
-        uses: actions/cache@v3
-        with:
-          path: |
+        env:
+          CACHE_PATHS: |
             ~/.android/avd/test.ini
             ~/.android/avd/test.avd/
             ~/.android/adbkey
             ~/.android/adbkey.pub
-          key: android-emulator-${{ steps.cache-helper.outputs.device }}-${{ steps.cache-helper.outputs.package }}-v0
+          CACHE_SCRIPT: ${{ inputs.script-cache }}
+        # needs: emulator
+        run: |
+          PACKAGE="system-images;android-${{ steps.emulator.outputs.api-level }};${{ steps.emulator.outputs.target }};${{ steps.emulator.outputs.arch }}"
+          DEVICE="${{ steps.emulator.outputs.profile }}-${{ steps.emulator.outputs.sdcard }}"
+          echo -e "cache-paths=<<EOF\n${CACHE_PATHS}\nEOF" >> $GITHUB_OUTPUT
+          echo "${CACHE_SCRIPT}" > script-cache.sh
+          chmod +x script-cache.sh
+          echo "cache-key=android-emulator-${DEVICE}-${PACKAGE}-${{ hashFiles('script-cache.sh') }}-v0" >> $GITHUB_OUTPUT
+
+      - name: "Load AVD cache"
+        id: avd-cache-restore
+        # needs: cache-helper
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ steps.cache-helper.outputs.cache-paths }}
+          key: ${{ steps.cache-helper.outputs.cache-key }}
 
       - name: "Create AVD and generate snapshot for caching"
-        # needs: avd-cache, emulator
+        # needs: avd-cache-restore, emulator
         # Emulators for API 32, 33, 34 are 1.4, 1.2 and 1.7 GB respectively.
-        if: steps.avd-cache.outputs.cache-hit != 'true' && steps.emulator.outputs.target != 'google_apis'
+        if: steps.avd-cache-restore.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           force-avd-creation: true # There was a cache miss, be strict now.
@@ -216,7 +224,16 @@ jobs:
           emulator-options: ${{ steps.emulator.outputs.options }} -no-snapshot-load
           script: |
             adb devices -l
-            ${{ inputs.script-cache }}
+            ./script-cache.sh
+
+      - name: "Save AVD cache"
+        id: avd-cache-save
+        # needs: avd-cache-restore, cache-helper
+        if: steps.avd-cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ steps.cache-helper.outputs.cache-paths }}
+          key: ${{ steps.avd-cache-restore.outputs.cache-primary-key }}
 
       - name: "Run Instrumentation Tests on emulator."
         id: gradle
