@@ -75,6 +75,13 @@ on:
            - x86
            - x86_64
 
+      cache-enabled:
+        required: false
+        type: boolean
+        default: true
+        description: |
+          Whether to cache the emulator image (true) or always regenerate it from scratch (false).
+
       timeout-minutes:
         required: false
         type: number
@@ -187,6 +194,7 @@ jobs:
           chmod +x setup-script.sh
 
       - name: "Calculate cache properties"
+        if: inputs.cache-enabled
         id: cache-helper
         # needs: emulator
         env:
@@ -202,6 +210,7 @@ jobs:
           echo "cache-key=android-emulator-${DEVICE}-${PACKAGE}-${{ hashFiles('setup-script.sh') }}-v0" >> $GITHUB_OUTPUT
 
       - name: "Load AVD cache"
+        if: inputs.cache-enabled
         id: avd-cache-restore
         # needs: cache-helper
         uses: actions/cache/restore@v3
@@ -212,7 +221,7 @@ jobs:
       - name: "Create AVD and generate snapshot for caching"
         # needs: avd-cache-restore, emulator
         # Emulators for API 32, 33, 34 are 1.4, 1.2 and 1.7 GB respectively.
-        if: steps.avd-cache-restore.outputs.cache-hit != 'true'
+        if: inputs.cache-enabled && steps.avd-cache-restore.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           force-avd-creation: true # There was a cache miss, be strict now.
@@ -231,7 +240,7 @@ jobs:
       - name: "Save AVD cache"
         id: avd-cache-save
         # needs: avd-cache-restore, cache-helper
-        if: steps.avd-cache-restore.outputs.cache-hit != 'true'
+        if: inputs.cache-enabled && steps.avd-cache-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
         with:
           path: ${{ steps.cache-helper.outputs.cache-paths }}
