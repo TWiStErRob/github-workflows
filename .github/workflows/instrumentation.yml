@@ -13,8 +13,8 @@ on:
           Multiple lines are allowed, but due to reactivecircus/android-emulator-runner's behavior
           each line will be executed separately, so no backslashes at end of lines.
           Note: in yaml, you can still use > to write multiple lines that end up as a single-line string.
-      
-      script-cache:
+
+      setup-script:
         required: false
         type: string
         description: |
@@ -171,7 +171,7 @@ jobs:
       - name: "Calculate emulator properties"
         id: emulator
         env:
-          SETUP_SCRIPT: ${{ inputs.script-cache }}
+          SETUP_SCRIPT: ${{ inputs.setup-script }}
         run: |
           echo "api-level=${{ inputs.android-api }}" >> $GITHUB_OUTPUT
           # TODEL Some are not available: https://issuetracker.google.com/issues/267458959
@@ -183,8 +183,8 @@ jobs:
           # See https://developer.android.com/studio/run/emulator-commandline#common
           echo "options=-no-window -gpu swiftshader_indirect -noaudio -no-boot-anim" >> $GITHUB_OUTPUT
           # Need to exist before substituting hashFiles in the next step.
-          echo "${SETUP_SCRIPT}" > script-cache.sh
-          chmod +x script-cache.sh
+          echo "${SETUP_SCRIPT}" > setup-script.sh
+          chmod +x setup-script.sh
 
       - name: "Calculate cache properties"
         id: cache-helper
@@ -199,7 +199,7 @@ jobs:
           PACKAGE="system-images;android-${{ steps.emulator.outputs.api-level }};${{ steps.emulator.outputs.target }};${{ steps.emulator.outputs.arch }}"
           DEVICE="${{ steps.emulator.outputs.profile }}-${{ steps.emulator.outputs.sdcard }}"
           echo -e "cache-paths<<EOF\n${CACHE_PATHS}\nEOF" >> $GITHUB_OUTPUT
-          echo "cache-key=android-emulator-${DEVICE}-${PACKAGE}-${{ hashFiles('script-cache.sh') }}-v0" >> $GITHUB_OUTPUT
+          echo "cache-key=android-emulator-${DEVICE}-${PACKAGE}-${{ hashFiles('setup-script.sh') }}-v0" >> $GITHUB_OUTPUT
 
       - name: "Load AVD cache"
         id: avd-cache-restore
@@ -226,7 +226,7 @@ jobs:
           emulator-options: ${{ steps.emulator.outputs.options }} -no-snapshot-load
           script: |
             adb devices -l
-            ./script-cache.sh
+            ./setup-script.sh
 
       - name: "Save AVD cache"
         id: avd-cache-save
