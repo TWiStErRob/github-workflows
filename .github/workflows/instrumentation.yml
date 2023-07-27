@@ -322,11 +322,32 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: '${{ format(inputs.name-artifact-fine-grained, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
-          # Exclude names with colon: https://issuetracker.google.com/issues/223643506
           path: |
-            ${{ github.workspace }}/**/build/reports/androidTests/connected/
-            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/
+            # AGP UTP additional output
             ${{ github.workspace }}/**/build/outputs/connected_android_test_additional_output/
+            
+            # AGP 7.x and 8.x results in all formats.
+            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/
+            
+            # AGP 7.4 and 8.0 HTML
+            ${{ github.workspace }}/**/build/reports/androidTests/connected/
+            
+            # AGP 7.4 and 8.0 XML
+            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/TEST-*.xml
+            
+            # AGP 7.4 and 8.0 binary results
+            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/test-result.pb
+            
+            # AGP 7.4 and 8.0 details
+            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/*/
+            
+            # AGP 4.1 XML, *AndroidTest is variant component name, e.g. debugAndroidTest
+            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/flavors/*AndroidTest/
+            
+            # AGP 4.1 HTML, *AndroidTest is variant component name, e.g. debugAndroidTest
+            ${{ github.workspace }}/**/build/reports/androidTests/connected/flavors/*AndroidTest/
+            
+            # Exclude names with colon: https://issuetracker.google.com/issues/223643506
             !**/*:*
 
       - name: "Upload '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' artifact."
@@ -334,9 +355,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
-          # Exclude names with colon: https://issuetracker.google.com/issues/223643506
           path: |
             ${{ github.workspace }}/build/androidTest-results/
+            
+            # Exclude names with colon: https://issuetracker.google.com/issues/223643506
             !**/*:*
 
       - name: "Publish '${{ format(inputs.name-check-results, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' check suite."
@@ -347,4 +369,14 @@ jobs:
           comment_mode: off
           report_individual_runs: true
           test_changes_limit: 0
-          junit_files: ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/TEST-*.xml
+          junit_files: |
+            # AGP 8.1
+            # /*/ is variant name, e.g. /debug/
+            # TEST-*.xml contains the emulator name and version and module, e.g. TEST-test(AVD) - 5.0.2-_about-.xml
+            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/*/TEST-*.xml
+            
+            # AGP 7.4 and 8.0
+            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/TEST-*.xml
+            
+            # AGP 4.1, *AndroidTest is variant component name, e.g. debugAndroidTest
+            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/flavors/*AndroidTest/TEST-*.xml
