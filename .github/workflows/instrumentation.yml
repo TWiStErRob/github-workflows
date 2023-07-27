@@ -366,9 +366,13 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         with:
           check_name: '${{ format(inputs.name-check-results, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
+          # Do not comment on PRs, only create a check on the commit.
           comment_mode: off
+          # If a test is executed multiple times, report all errors separately.
           report_individual_runs: true
-          test_changes_limit: 0
+          # Prevent passing CI with "Warning: Could not find any JUnit XML files for .../TEST-*.xml"
+          action_fail_on_inconclusive: true
+          # Include all possible locations for different AGP versions.
           junit_files: |
             # AGP 8.1
             # /*/ is variant name, e.g. /debug/
@@ -378,5 +382,6 @@ jobs:
             # AGP 7.4 and 8.0
             ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/TEST-*.xml
             
-            # AGP 4.1, *AndroidTest is variant component name, e.g. debugAndroidTest
+            # AGP 4.1
+            # *AndroidTest is variant component name, e.g. debugAndroidTest
             ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/flavors/*AndroidTest/TEST-*.xml
