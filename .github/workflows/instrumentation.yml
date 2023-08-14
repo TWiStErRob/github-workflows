@@ -152,7 +152,6 @@ jobs:
   android:
     name: "API ${{ inputs.android-api }}"
     runs-on: macos-latest
-    timeout-minutes: ${{ 30 + inputs.timeout-minutes }}
 
     permissions:
       # actions/checkout
