@@ -152,7 +152,7 @@ jobs:
   android:
     name: "API ${{ inputs.android-api }}"
     runs-on: macos-latest
-    timeout-minutes: ${{ inputs.timeout-minutes }}
+    timeout-minutes: ${{ 30 + inputs.timeout-minutes }}
 
     permissions:
       # actions/checkout
@@ -249,6 +249,7 @@ jobs:
       - name: "Run Instrumentation Tests on emulator."
         id: gradle
         # needs: emulator
+        timeout-minutes: ${{ inputs.timeout-minutes }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
           force-avd-creation: false # Reuse pre-created emulator.
