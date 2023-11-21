@@ -95,7 +95,8 @@ on:
         type: number
         default: 17
         description: |
-          See actions/setup-java's java-version. Will use zulu distribution.
+          See actions/setup-java's java-version.
+          Will use temurin distribution as it's preinstalled on GitHub Actions hosted runners.
 
       junit5:
         required: false
@@ -167,7 +168,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ inputs.java-version }}
-          distribution: zulu
+          distribution: temurin
 
       - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
         uses: actions/checkout@v4
