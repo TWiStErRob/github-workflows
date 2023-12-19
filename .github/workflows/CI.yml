@@ -28,4 +28,4 @@ jobs:
       - name: "Validate workflow file."
         env:
           WORKFLOW_FILE: ${{ github.workspace }}/.github/workflows/${{ matrix.workflow-file }}
-        run: npm exec --package=@action-validator/cli --no -- action-validator "${WORKFLOW_FILE}"
+        run: npm exec --package=@action-validator/cli@0.5.3 --no -- action-validator "${WORKFLOW_FILE}"
