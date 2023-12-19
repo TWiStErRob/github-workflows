@@ -323,6 +323,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: '${{ format(inputs.name-artifact-fine-grained, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
+          if-no-files-found: error
           path: |
             # AGP UTP additional output
             ${{ github.workspace }}/**/build/outputs/connected_android_test_additional_output/
@@ -356,6 +357,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
+          if-no-files-found: error
           path: |
             ${{ github.workspace }}/build/androidTest-results/
             
