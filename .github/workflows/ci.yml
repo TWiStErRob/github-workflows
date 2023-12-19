@@ -25,10 +25,7 @@ jobs:
       - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
         uses: actions/checkout@v4
 
-      - name: "Install action-validator."
-        working-directory: action-validator
-        run: npm install
-
       - name: "Validate workflow file."
-        working-directory: action-validator
-        run: npx --no-install action-validator ${{ github.workspace }}/.github/workflows/${{ matrix.workflow-file }}
+        env:
+          WORKFLOW_FILE: ${{ github.workspace }}/.github/workflows/${{ matrix.workflow-file }}
+        run: npm exec --package=@action-validator/cli --no -- action-validator "${WORKFLOW_FILE}"
