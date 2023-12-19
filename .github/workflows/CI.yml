@@ -31,4 +31,6 @@ jobs:
 
       - name: "Validate workflow file."
         working-directory: action-validator
-        run: npx --no-install action-validator ${{ github.workspace }}/.github/workflows/${{ matrix.workflow-file }}
+        env:
+          WORKFLOW_FILE: ${{ github.workspace }}/.github/workflows/${{ matrix.workflow-file }}
+        run: npx --no-install action-validator "${WORKFLOW_FILE}"
