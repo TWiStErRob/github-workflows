@@ -332,28 +332,28 @@ jobs:
           if-no-files-found: error
           path: |
             # AGP UTP additional output
-            ${{ github.workspace }}/**/build/outputs/connected_android_test_additional_output/
+            **/build/outputs/connected_android_test_additional_output/
             
             # AGP 7.x and 8.x results in all formats.
-            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/
+            **/build/outputs/androidTest-results/connected/
             
             # AGP 7.4 and 8.0 HTML
-            ${{ github.workspace }}/**/build/reports/androidTests/connected/
+            **/build/reports/androidTests/connected/
             
             # AGP 7.4 and 8.0 XML
-            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/TEST-*.xml
+            **/build/outputs/androidTest-results/connected/TEST-*.xml
             
             # AGP 7.4 and 8.0 binary results
-            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/test-result.pb
+            **/build/outputs/androidTest-results/connected/test-result.pb
             
             # AGP 7.4 and 8.0 details
-            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/*/
+            **/build/outputs/androidTest-results/connected/*/
             
             # AGP 4.1 XML, *AndroidTest is variant component name, e.g. debugAndroidTest
-            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/flavors/*AndroidTest/
+            **/build/outputs/androidTest-results/connected/flavors/*AndroidTest/
             
             # AGP 4.1 HTML, *AndroidTest is variant component name, e.g. debugAndroidTest
-            ${{ github.workspace }}/**/build/reports/androidTests/connected/flavors/*AndroidTest/
+            **/build/reports/androidTests/connected/flavors/*AndroidTest/
             
             # Exclude names with colon: https://issuetracker.google.com/issues/223643506
             !**/*:*
@@ -365,7 +365,7 @@ jobs:
           name: '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
           if-no-files-found: error
           path: |
-            ${{ github.workspace }}/build/androidTest-results/
+            build/androidTest-results/
             
             # Exclude names with colon: https://issuetracker.google.com/issues/223643506
             !**/*:*
@@ -386,11 +386,11 @@ jobs:
             # AGP 8.1
             # /*/ is variant name, e.g. /debug/
             # TEST-*.xml contains the emulator name and version and module, e.g. TEST-test(AVD) - 5.0.2-_about-.xml
-            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/*/TEST-*.xml
+            **/build/outputs/androidTest-results/connected/*/TEST-*.xml
             
             # AGP 7.4 and 8.0
-            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/TEST-*.xml
+            **/build/outputs/androidTest-results/connected/TEST-*.xml
             
             # AGP 4.1
             # *AndroidTest is variant component name, e.g. debugAndroidTest
-            ${{ github.workspace }}/**/build/outputs/androidTest-results/connected/flavors/*AndroidTest/TEST-*.xml
+            **/build/outputs/androidTest-results/connected/flavors/*AndroidTest/TEST-*.xml
