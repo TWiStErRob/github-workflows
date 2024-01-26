@@ -372,7 +372,7 @@ jobs:
 
       - name: "Publish '${{ format(inputs.name-check-results, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' check suite."
         if: success() || failure()
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           check_name: '${{ format(inputs.name-check-results, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
           # Do not comment on PRs, only create a check on the commit.
