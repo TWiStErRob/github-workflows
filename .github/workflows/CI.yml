@@ -8,6 +8,11 @@ jobs:
   validate:
     name: "🦺 Validation"
     uses: ./.github/workflows/validate.yml
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
 
   action-validator:
     name: "Validate ${{ matrix.workflow-file }}"
