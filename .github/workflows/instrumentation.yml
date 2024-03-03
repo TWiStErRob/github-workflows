@@ -186,15 +186,15 @@ jobs:
         env:
           SETUP_SCRIPT: ${{ inputs.setup-script }}
         run: |
-          echo "api-level=${{ inputs.android-api }}" >> $GITHUB_OUTPUT
+          echo "api-level=${{ inputs.android-api }}" >> "${GITHUB_OUTPUT}"
           # TODEL Some are not available: https://issuetracker.google.com/issues/267458959
-          echo "target=${{ inputs.android-api >= 32 && 'google_apis' || 'default' }}" >> $GITHUB_OUTPUT
-          echo "arch=${{ inputs.android-api >= 21 && 'x86_64' || 'x86' }}" >> $GITHUB_OUTPUT
-          echo "profile=pixel" >> $GITHUB_OUTPUT
+          echo "target=${{ inputs.android-api >= 32 && 'google_apis' || 'default' }}" >> "${GITHUB_OUTPUT}"
+          echo "arch=${{ inputs.android-api >= 21 && 'x86_64' || 'x86' }}" >> "${GITHUB_OUTPUT}"
+          echo "profile=pixel" >> "${GITHUB_OUTPUT}"
           # Ensure that /storage/sdcard exists, without this the stock DocumentsUI will be non-functional.
-          echo "sdcard=100M" >> $GITHUB_OUTPUT
+          echo "sdcard=100M" >> "${GITHUB_OUTPUT}"
           # See https://developer.android.com/studio/run/emulator-commandline#common
-          echo "options=-no-window -gpu swiftshader_indirect -noaudio -no-boot-anim" >> $GITHUB_OUTPUT
+          echo "options=-no-window -gpu swiftshader_indirect -noaudio -no-boot-anim" >> "${GITHUB_OUTPUT}"
           # Need to exist before substituting hashFiles in the next step.
           echo "${SETUP_SCRIPT}" > setup-script.sh
           chmod +x setup-script.sh
@@ -212,8 +212,8 @@ jobs:
         run: |
           PACKAGE="system-images;android-${{ steps.emulator.outputs.api-level }};${{ steps.emulator.outputs.target }};${{ steps.emulator.outputs.arch }}"
           DEVICE="${{ steps.emulator.outputs.profile }}-${{ steps.emulator.outputs.sdcard }}"
-          echo -e "cache-paths<<EOF\n${CACHE_PATHS}\nEOF" >> $GITHUB_OUTPUT
-          echo "cache-key=android-emulator-${DEVICE}-${PACKAGE}-${{ hashFiles('setup-script.sh') }}-v1" >> $GITHUB_OUTPUT
+          echo -e "cache-paths<<EOF\n${CACHE_PATHS}\nEOF" >> "${GITHUB_OUTPUT}"
+          echo "cache-key=android-emulator-${DEVICE}-${PACKAGE}-${{ hashFiles('setup-script.sh') }}-v1" >> "${GITHUB_OUTPUT}"
 
       - name: "Load AVD cache"
         if: inputs.cache
