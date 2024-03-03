@@ -45,22 +45,9 @@ jobs:
       - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
         uses: actions/checkout@v4
 
-      - name: "Download validator."
-        working-directory: ${{ runner.temp }}
-        env:
-          GHLINT_VERSION: '0.3.0'
-        shell: bash
-        run: |
-          curl --silent --show-error --location --remote-name \
-           https://github.com/TWiStErRob/net.twisterrob.ghlint/releases/download/v${GHLINT_VERSION}/ghlint.jar
-          chmod +x ghlint.jar
-
-      - name: "Run validator."
-        env:
-          FILES: ${{ steps.files.outputs.result }}
-        shell: bash
-        run: |
-          "${{ runner.temp }}/ghlint.jar" --verbose --sarif=report.sarif.json .github/workflows/*.yml
+      - name: "Run GH-Lint validator."
+        id: ghlint
+        uses: TWiStErRob/net.twisterrob.ghlint@usage
 
       - name: "Upload 'GH-Lint Results' artifact."
         if: ${{ success() || failure() }}
@@ -68,11 +55,11 @@ jobs:
         with:
           name: 'GH-Lint Results'
           if-no-files-found: error
-          path: report.sarif.json
+          path: ${{ steps.ghlint.outputs.sarif-report }}
 
       - name: "Publish 'GH-Lint' GitHub Code Scanning analysis."
         if: ${{ success() || failure() }}
         uses: github/codeql-action/upload-sarif@v3
         with:
           checkout_path: ${{ github.workspace }}
-          sarif_file: report.sarif.json
+          sarif_file: ${{ steps.ghlint.outputs.sarif-report }}
