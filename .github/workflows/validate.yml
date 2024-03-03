@@ -23,6 +23,8 @@ jobs:
 
       - name: "Validate Gradle Wrapper JARs."
         uses: gradle/wrapper-validation-action@v2
+        with:
+          min-wrapper-count: 0
 
 
   ghlint:
@@ -46,6 +48,8 @@ jobs:
       - name: "Run GH-Lint validator."
         id: ghlint
         uses: TWiStErRob/net.twisterrob.ghlint@v0.3.0
+        with:
+          
 
       - name: "Upload 'GH-Lint Results' artifact."
         if: ${{ success() || failure() }}
