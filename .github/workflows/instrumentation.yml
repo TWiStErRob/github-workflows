@@ -153,6 +153,8 @@ jobs:
   android:
     name: "API ${{ inputs.android-api }}"
     runs-on: ubuntu-latest
+    # GitHub can't do math, so this needs to be either an input, or a hard limit.
+    timeout-minutes: 180
 
     permissions:
       # actions/checkout
@@ -161,6 +163,10 @@ jobs:
       checks: write
       # actions/github-script calling github.createCommitStatus()
       statuses: write
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
 
@@ -185,22 +191,25 @@ jobs:
         id: emulator
         env:
           SETUP_SCRIPT: ${{ inputs.setup-script }}
+          API: ${{ inputs.android-api }}
+          TARGET: ${{ inputs.android-api >= 32 && 'google_apis' || 'default' }}
+          ARCH: ${{ inputs.android-api >= 21 && 'x86_64' || 'x86' }}
         run: |
-          echo "api-level=${{ inputs.android-api }}" >> $GITHUB_OUTPUT
+          echo "api-level=${API}" >> "${GITHUB_OUTPUT}"
           # TODEL Some are not available: https://issuetracker.google.com/issues/267458959
-          echo "target=${{ inputs.android-api >= 32 && 'google_apis' || 'default' }}" >> $GITHUB_OUTPUT
-          echo "arch=${{ inputs.android-api >= 21 && 'x86_64' || 'x86' }}" >> $GITHUB_OUTPUT
-          echo "profile=pixel" >> $GITHUB_OUTPUT
+          echo "target=${TARGET}" >> "${GITHUB_OUTPUT}"
+          echo "arch=${ARCH}" >> "${GITHUB_OUTPUT}"
+          echo "profile=pixel" >> "${GITHUB_OUTPUT}"
           # Ensure that /storage/sdcard exists, without this the stock DocumentsUI will be non-functional.
-          echo "sdcard=100M" >> $GITHUB_OUTPUT
+          echo "sdcard=100M" >> "${GITHUB_OUTPUT}"
           # See https://developer.android.com/studio/run/emulator-commandline#common
-          echo "options=-no-window -gpu swiftshader_indirect -noaudio -no-boot-anim" >> $GITHUB_OUTPUT
+          echo "options=-no-window -gpu swiftshader_indirect -noaudio -no-boot-anim" >> "${GITHUB_OUTPUT}"
           # Need to exist before substituting hashFiles in the next step.
           echo "${SETUP_SCRIPT}" > setup-script.sh
           chmod +x setup-script.sh
 
       - name: "Calculate cache properties"
-        if: inputs.cache
+        if: ${{ inputs.cache }}
         id: cache-helper
         # needs: emulator
         env:
@@ -209,14 +218,15 @@ jobs:
             ~/.android/avd/test.avd/
             ~/.android/adbkey
             ~/.android/adbkey.pub
+          DEVICE: ${{ steps.emulator.outputs.profile }}-${{ steps.emulator.outputs.sdcard }}
+          PACKAGE: system-images;android-${{ steps.emulator.outputs.api-level }};${{ steps.emulator.outputs.target }};${{ steps.emulator.outputs.arch }}
+          HASH: ${{ hashFiles('setup-script.sh') }}
         run: |
-          PACKAGE="system-images;android-${{ steps.emulator.outputs.api-level }};${{ steps.emulator.outputs.target }};${{ steps.emulator.outputs.arch }}"
-          DEVICE="${{ steps.emulator.outputs.profile }}-${{ steps.emulator.outputs.sdcard }}"
-          echo -e "cache-paths<<EOF\n${CACHE_PATHS}\nEOF" >> $GITHUB_OUTPUT
-          echo "cache-key=android-emulator-${DEVICE}-${PACKAGE}-${{ hashFiles('setup-script.sh') }}-v1" >> $GITHUB_OUTPUT
+          echo -e "cache-paths<<EOF\n${CACHE_PATHS}\nEOF" >> "${GITHUB_OUTPUT}"
+          echo "cache-key=android-emulator-${DEVICE}-${PACKAGE}-${HASH}-v1" >> "${GITHUB_OUTPUT}"
 
       - name: "Load AVD cache"
-        if: inputs.cache
+        if: ${{ inputs.cache }}
         id: avd-cache-restore
         # needs: cache-helper
         uses: actions/cache/restore@v4
@@ -227,7 +237,7 @@ jobs:
       - name: "Create AVD and generate snapshot for caching"
         # needs: avd-cache-restore, emulator
         # Emulators for API 32, 33, 34 are 1.4, 1.2 and 1.7 GB respectively.
-        if: inputs.cache && steps.avd-cache-restore.outputs.cache-hit != 'true'
+        if: ${{ inputs.cache && steps.avd-cache-restore.outputs.cache-hit != 'true' }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
           force-avd-creation: true # There was a cache miss, be strict now.
@@ -246,7 +256,7 @@ jobs:
       - name: "Save AVD cache"
         id: avd-cache-save
         # needs: avd-cache-restore, cache-helper
-        if: inputs.cache && steps.avd-cache-restore.outputs.cache-hit != 'true'
+        if: ${{ inputs.cache && steps.avd-cache-restore.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v4
         with:
           path: ${{ steps.cache-helper.outputs.cache-paths }}
@@ -272,7 +282,7 @@ jobs:
             ${{ inputs.script }}
 
       - name: "Publish 'Gradle' result and Build Scan URL."
-        if: (success() || failure()) && steps.gradle != null && steps.gradle.outputs.result-success != null
+        if: ${{ (success() || failure()) && steps.gradle != null && steps.gradle.outputs.result-success != null }}
         uses: actions/github-script@v7
         env:
           PARAM_BUILD_SCAN_URL: ${{ steps.gradle.outputs.build-scan-url }}
@@ -325,7 +335,7 @@ jobs:
             });
 
       - name: "Upload '${{ format(inputs.name-artifact-fine-grained, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' artifact."
-        if: success() || failure()
+        if: ${{ success() || failure() }}
         uses: actions/upload-artifact@v4
         with:
           name: '${{ format(inputs.name-artifact-fine-grained, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
@@ -359,7 +369,7 @@ jobs:
             !**/*:*
 
       - name: "Upload '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' artifact."
-        if: success() || failure()
+        if: ${{ success() || failure() }}
         uses: actions/upload-artifact@v4
         with:
           name: '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
@@ -371,7 +381,7 @@ jobs:
             !**/*:*
 
       - name: "Publish '${{ format(inputs.name-check-results, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' check suite."
-        if: success() || failure()
+        if: ${{ success() || failure() }}
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           check_name: '${{ format(inputs.name-check-results, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'

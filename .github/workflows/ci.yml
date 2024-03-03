@@ -4,6 +4,16 @@ on:
   push
 
 jobs:
+
+  validate:
+    name: "🦺 Validation"
+    uses: ./.github/workflows/validate.yml
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+
   action-validator:
     name: "Validate ${{ matrix.workflow-file }}"
     runs-on: ubuntu-latest
@@ -17,9 +27,13 @@ jobs:
       fail-fast: false
       matrix:
         workflow-file:
-          - CI.yml # self-validation.
+          - ci.yml # self-validation.
           - validate.yml
           - instrumentation.yml
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
