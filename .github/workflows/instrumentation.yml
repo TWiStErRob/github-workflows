@@ -164,6 +164,10 @@ jobs:
       # actions/github-script calling github.createCommitStatus()
       statuses: write
 
+    defaults:
+      run:
+        shell: bash
+
     steps:
 
       - name: "Set up Java ${{ inputs.java-version }}."
