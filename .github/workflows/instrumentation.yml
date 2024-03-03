@@ -200,7 +200,7 @@ jobs:
           chmod +x setup-script.sh
 
       - name: "Calculate cache properties"
-        if: inputs.cache
+        if: ${{ inputs.cache }}
         id: cache-helper
         # needs: emulator
         env:
@@ -216,7 +216,7 @@ jobs:
           echo "cache-key=android-emulator-${DEVICE}-${PACKAGE}-${{ hashFiles('setup-script.sh') }}-v1" >> "${GITHUB_OUTPUT}"
 
       - name: "Load AVD cache"
-        if: inputs.cache
+        if: ${{ inputs.cache }}
         id: avd-cache-restore
         # needs: cache-helper
         uses: actions/cache/restore@v4
@@ -227,7 +227,7 @@ jobs:
       - name: "Create AVD and generate snapshot for caching"
         # needs: avd-cache-restore, emulator
         # Emulators for API 32, 33, 34 are 1.4, 1.2 and 1.7 GB respectively.
-        if: inputs.cache && steps.avd-cache-restore.outputs.cache-hit != 'true'
+        if: ${{ inputs.cache && steps.avd-cache-restore.outputs.cache-hit != 'true' }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
           force-avd-creation: true # There was a cache miss, be strict now.
@@ -246,7 +246,7 @@ jobs:
       - name: "Save AVD cache"
         id: avd-cache-save
         # needs: avd-cache-restore, cache-helper
-        if: inputs.cache && steps.avd-cache-restore.outputs.cache-hit != 'true'
+        if: ${{ inputs.cache && steps.avd-cache-restore.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v4
         with:
           path: ${{ steps.cache-helper.outputs.cache-paths }}
@@ -272,7 +272,7 @@ jobs:
             ${{ inputs.script }}
 
       - name: "Publish 'Gradle' result and Build Scan URL."
-        if: (success() || failure()) && steps.gradle != null && steps.gradle.outputs.result-success != null
+        if: ${{ (success() || failure()) && steps.gradle != null && steps.gradle.outputs.result-success != null }}
         uses: actions/github-script@v7
         env:
           PARAM_BUILD_SCAN_URL: ${{ steps.gradle.outputs.build-scan-url }}
@@ -325,7 +325,7 @@ jobs:
             });
 
       - name: "Upload '${{ format(inputs.name-artifact-fine-grained, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' artifact."
-        if: success() || failure()
+        if: ${{ success() || failure() }}
         uses: actions/upload-artifact@v4
         with:
           name: '${{ format(inputs.name-artifact-fine-grained, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
@@ -359,7 +359,7 @@ jobs:
             !**/*:*
 
       - name: "Upload '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' artifact."
-        if: success() || failure()
+        if: ${{ success() || failure() }}
         uses: actions/upload-artifact@v4
         with:
           name: '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
@@ -371,7 +371,7 @@ jobs:
             !**/*:*
 
       - name: "Publish '${{ format(inputs.name-check-results, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}' check suite."
-        if: success() || failure()
+        if: ${{ success() || failure() }}
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
           check_name: '${{ format(inputs.name-check-results, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
