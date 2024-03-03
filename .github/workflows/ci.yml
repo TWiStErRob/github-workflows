@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         workflow-file:
-          - CI.yml # self-validation.
+          - ci.yml # self-validation.
           - validate.yml
           - instrumentation.yml
 
