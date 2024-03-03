@@ -4,6 +4,11 @@ on:
   push
 
 jobs:
+
+  validate:
+    name: "🦺 Validation"
+    uses: ./.github/workflows/validate.yml
+
   action-validator:
     name: "Validate ${{ matrix.workflow-file }}"
     runs-on: ubuntu-latest
