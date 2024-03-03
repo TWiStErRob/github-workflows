@@ -47,7 +47,7 @@ jobs:
 
       - name: "Run GH-Lint validator."
         id: ghlint
-        uses: TWiStErRob/net.twisterrob.ghlint@usage
+        uses: TWiStErRob/net.twisterrob.ghlint@v0.3.1
 
       - name: "Upload 'GH-Lint Results' artifact."
         if: ${{ success() || failure() }}
