@@ -176,7 +176,7 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: temurin
 
-      - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
+      - name: "Checkout ${{ github.ref }} ref in ${{ github.repository }} repository."
         uses: actions/checkout@v4
         with:
           submodules: recursive

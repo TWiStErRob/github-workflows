@@ -36,7 +36,7 @@ jobs:
         shell: bash
 
     steps:
-      - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
+      - name: "Checkout ${{ github.ref }} ref in ${{ github.repository }} repository."
         uses: actions/checkout@v4
 
       - name: "Install action-validator."

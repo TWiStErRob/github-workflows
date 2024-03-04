@@ -16,7 +16,7 @@ jobs:
 
     steps:
 
-      - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
+      - name: "Checkout ${{ github.ref }} ref in ${{ github.repository }} repository."
         uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -42,7 +42,7 @@ jobs:
 
     steps:
 
-      - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
+      - name: "Checkout ${{ github.ref }} ref in ${{ github.repository }} repository."
         uses: actions/checkout@v4
 
       - name: "Run GH-Lint validator."
@@ -76,7 +76,7 @@ jobs:
 
     steps:
 
-      - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
+      - name: "Checkout ${{ github.ref }} ref in ${{ github.repository }} repository."
         uses: actions/checkout@v4
 
       - name: "Run renovate-config-validator on repository configuration."
