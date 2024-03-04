@@ -24,7 +24,6 @@ jobs:
     name: "🧪 Instrumentation Tests on" # / API ${{ matrix.api }} will be appended by used workflow.
     needs: validate
     uses: ./.github/workflows/instrumentation.yml
-
     permissions:
       contents: read
       checks: write
