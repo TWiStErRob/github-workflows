@@ -63,3 +63,26 @@ jobs:
         with:
           checkout_path: ${{ github.workspace }}
           sarif_file: ${{ steps.ghlint.outputs.sarif-report }}
+
+
+  renovate:
+    name: "Renovate"
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    
+    permissions:
+      # actions/checkout
+      contents: read
+
+    steps:
+
+      - name: "Checkout ${{ github.ref }} branch in ${{ github.repository }} repository."
+        uses: actions/checkout@v4
+
+      - name: "Run renovate-config-validator on repository configuration."
+        shell: bash
+        run: >
+          npx
+          --yes
+          --package renovate
+          --call 'renovate-config-validator --strict .github/renovate.json'
