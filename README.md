@@ -2,7 +2,7 @@
 Reusable GitHub Actions workflows for my repositories.
 
 ## [validate.yml](.github/workflows/validate.yml)
-Gradle wrapper validation.
+Gradle wrapper, GitHub workflows and Renovate configuration validation.
 
 ```yaml
 jobs:
