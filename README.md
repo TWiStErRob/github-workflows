@@ -8,7 +8,7 @@ Gradle wrapper, GitHub workflows and Renovate configuration validation.
 jobs:
   validate:
     name: "🦺 Validation"
-    uses: TWiStErRob/github-workflows/.github/workflows/validate.yml@v1
+    uses: TWiStErRob/github-workflows/.github/workflows/validate.yml@v3
     permissions:
       contents: read
       security-events: write
@@ -40,7 +40,7 @@ jobs:
   instrumentation:
     name: "${{ matrix.api }}"
 
-    uses: TWiStErRob/github-workflows/.github/workflows/instrumentation.yml@v1
+    uses: TWiStErRob/github-workflows/.github/workflows/instrumentation.yml@v3
     with:
       android-api: ${{ matrix.api }}
       script: >
