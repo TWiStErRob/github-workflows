@@ -8,6 +8,8 @@ jobs:
   validate:
     name: "🦺 Validation"
     uses: ./.github/workflows/validate.yml
+    with:
+      gradle: false
     permissions:
       contents: read
       security-events: write
