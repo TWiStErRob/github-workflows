@@ -1,12 +1,20 @@
 name: "🦺 Validation"
 
 on:
-  workflow_call
+  workflow_call:
+    inputs:
+
+      gradle:
+        description: "This project is not Gradle-based."
+        type: boolean
+        required: false
+        default: true
 
 jobs:
 
   gradle-wrapper:
     name: "Gradle Wrapper"
+    if: ${{ inputs.gradle }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
 
@@ -23,8 +31,6 @@ jobs:
 
       - name: "Validate Gradle Wrapper JARs."
         uses: gradle/wrapper-validation-action@v2
-        with:
-          min-wrapper-count: 0
 
 
   ghlint:
