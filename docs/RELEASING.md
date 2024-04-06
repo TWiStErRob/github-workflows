@@ -4,8 +4,9 @@
 2. Generate release notes
 3. Review changes to determine the next version number.
 4. Change tag and name to the next version number. (vX.Y.Z)
-5. Publish the release.
-6. Locally finalize the moving tag:
+5. If it's a major release, update README.md `@vX` references with a "Prepare vX" PR.
+6. Publish the release.
+7. Locally finalize the moving tag:
    ```shell
    git fetch
    git checkout vX.Y.Z
