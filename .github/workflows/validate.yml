@@ -82,11 +82,12 @@ jobs:
 
     steps:
 
-      - name: "Setup Node & Cache NPX"
-        uses: actions/setup-node@v4
+      - name: "Cache NPX"
+        uses: actions/cache@v4
         with:
-          node-version: 20
-          cache: npm
+          key: npx-${{ github.workflow }}-${{ github.job }}
+          path: |
+            ~/.npm
 
       - name: "Checkout ${{ github.ref }} ref in ${{ github.repository }} repository."
         uses: actions/checkout@v4
