@@ -30,7 +30,7 @@ jobs:
           submodules: recursive
 
       - name: "Validate Gradle Wrapper JARs."
-        uses: gradle/wrapper-validation-action@v2
+        uses: gradle/wrapper-validation-action@v3
 
 
   ghlint:
