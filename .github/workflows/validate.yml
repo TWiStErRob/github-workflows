@@ -98,4 +98,7 @@ jobs:
           npx
           --yes
           --package renovate
-          --call 'renovate-config-validator --strict .github/renovate.json5'
+          --
+          renovate-config-validator
+          --strict
+          .github/renovate.json5
