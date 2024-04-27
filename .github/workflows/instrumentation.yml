@@ -218,7 +218,7 @@ jobs:
             ~/.android/avd/test.avd/
             ~/.android/adbkey
             ~/.android/adbkey.pub
-          DEVICE: ${{ steps.emulator.outputs.profile }}-${{ steps.emulator.outputs.sdcard }}
+          DEVICE: "${{ steps.emulator.outputs.profile }}-${{ steps.emulator.outputs.sdcard }}"
           PACKAGE: system-images;android-${{ steps.emulator.outputs.api-level }};${{ steps.emulator.outputs.target }};${{ steps.emulator.outputs.arch }}
           HASH: ${{ hashFiles('setup-script.sh') }}
         run: |
