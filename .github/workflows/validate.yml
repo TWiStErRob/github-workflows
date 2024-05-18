@@ -80,12 +80,15 @@ jobs:
       # actions/checkout
       contents: read
 
+    env:
+      RENOVATE_VERSION: 37.368.6
+
     steps:
 
       - name: "Cache NPX"
         uses: actions/cache@v4
         with:
-          key: npx-${{ github.workflow }}-${{ github.job }}
+          key: npx-${{ github.workflow }}-${{ github.job }}-${{ env.RENOVATE_VERSION }}
           path: |
             ~/.npm/_npx
 
@@ -97,7 +100,7 @@ jobs:
         run: >
           npx
           --yes
-          --package renovate
+          --package "renovate@${RENOVATE_VERSION}"
           --
           renovate-config-validator
           --strict
