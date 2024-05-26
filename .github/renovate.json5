@@ -6,7 +6,6 @@
 	packageRules: [
 		{
 			description: "Reduce noise because Renovate has really frequent releases.",
-			matchUpdateTypes: ["minor", "patch"],
 			matchDepNames: ["renovate"],
 			schedule: ["before 4am on the first day of the month"],
 			separateMajorMinor: false,
