@@ -10,9 +10,10 @@
    ```shell
    git fetch
    git checkout vX.Y.Z
-   git tag vX
+   git tag vX -f
    git push origin vX -f
    ```
+8. If it's a minor release, update the moving tag release in https://github.com/TWiStErRob/github-workflows/releases
 
 # Versioning
 Trying to follow semver.
