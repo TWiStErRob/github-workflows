@@ -15,7 +15,7 @@ jobs:
   gradle-wrapper:
     name: "Gradle Wrapper"
     if: ${{ inputs.gradle }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
 
     permissions:
@@ -35,7 +35,7 @@ jobs:
 
   ghlint:
     name: "GitHub Workflows (ghlint)"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
 
     permissions:
@@ -73,7 +73,7 @@ jobs:
 
   renovate:
     name: "Renovate"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 3
     
     permissions:
