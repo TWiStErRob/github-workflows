@@ -1,29 +1,35 @@
 {
-	$schema: "https://docs.renovatebot.com/renovate-schema.json",
+	$schema: 'https://docs.renovatebot.com/renovate-schema.json',
 	extends: [
-		"local>TWiStErRob/renovate-config",
+		'local>TWiStErRob/renovate-config',
 	],
 	packageRules: [
 		{
-			description: "Reduce noise because Renovate has really frequent releases.",
-			matchDepNames: ["renovate"],
-			schedule: ["before 4am on the first day of the month"],
+			description: 'Reduce noise because Renovate has really frequent releases.',
+			matchDepNames: [
+				'renovate',
+			],
+			schedule: [
+				'before 4am on the first day of the month',
+			],
 			separateMajorMinor: false,
 			separateMinorPatch: false,
 			separateMultipleMajor: false,
 			separateMultipleMinor: false,
-		}
+		},
 	],
 	customManagers: [
 		{
-			description: "Update Renovate from NPM.",
-			customType: "regex",
-			fileMatch: ["^\\.github/workflows/validate\\.yml$"],
-			datasourceTemplate: "npm",
-			depNameTemplate: "renovate",
-			matchStrings: [
-				"RENOVATE_VERSION: '(?<currentValue>.*?)' # renovate"
+			description: 'Update Renovate from NPM.',
+			customType: 'regex',
+			managerFilePatterns: [
+				'/^\\.github/workflows/validate\\.yml$/',
 			],
-		}
+			datasourceTemplate: 'npm',
+			depNameTemplate: 'renovate',
+			matchStrings: [
+				"RENOVATE_VERSION: '(?<currentValue>.*?)' # renovate",
+			],
+		},
 	],
 }
