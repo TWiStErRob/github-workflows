@@ -12,18 +12,20 @@
 			separateMinorPatch: false,
 			separateMultipleMajor: false,
 			separateMultipleMinor: false,
-		}
+		},
 	],
 	customManagers: [
 		{
 			description: "Update Renovate from NPM.",
 			customType: "regex",
-			fileMatch: ["^\\.github/workflows/validate\\.yml$"],
+			managerFilePatterns: [
+				".github/workflows/validate.yml",
+			],
 			datasourceTemplate: "npm",
 			depNameTemplate: "renovate",
 			matchStrings: [
-				"RENOVATE_VERSION: '(?<currentValue>.*?)' # renovate"
+				"RENOVATE_VERSION: '(?<currentValue>.*?)' # renovate",
 			],
-		}
+		},
 	],
 }
