@@ -81,7 +81,7 @@ jobs:
       contents: read
 
     env:
-      RENOVATE_VERSION: '40.34.2' # renovate
+      RENOVATE_VERSION: '41.15.0' # renovate
 
     steps:
 
