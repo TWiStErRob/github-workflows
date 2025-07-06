@@ -429,7 +429,7 @@ jobs:
           # Prevent passing CI with "Warning: Could not find any JUnit XML files for .../TEST-*.xml"
           action_fail_on_inconclusive: true
           # Include all possible locations for different AGP versions.
-          junit_files: |
+          files: |
             # AGP 8.1
             # /*/ is variant name, e.g. /debug/
             # TEST-*.xml contains the emulator name and version and module, e.g. TEST-test(AVD) - 5.0.2-_about-.xml
