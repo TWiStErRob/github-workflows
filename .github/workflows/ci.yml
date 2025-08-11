@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: "Checkout ${{ github.ref }} ref in ${{ github.repository }} repository."
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: "Install action-validator."
         working-directory: action-validator
