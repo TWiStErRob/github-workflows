@@ -63,19 +63,12 @@ jobs:
           if-no-files-found: error
           path: ${{ steps.ghlint.outputs.sarif-report }}
 
-      # Workaround for https://github.com/github/codeql-action/issues/3156
-      - name: "Rename .sarif.json to just .sarif"
-        shell: bash
-        env:
-          SARIF_PATH: ${{ steps.ghlint.outputs.sarif-report }}
-        run: mv "${SARIF_PATH}" ghlint.sarif
-
       - name: "Publish 'GH-Lint' GitHub Code Scanning analysis."
         if: ${{ success() || failure() }}
         uses: github/codeql-action/upload-sarif@v4
         with:
           checkout_path: ${{ github.workspace }}
-          sarif_file: ${{ github.workspace }}/ghlint.sarif
+          sarif_file: ${{ steps.ghlint.outputs.sarif-report }}
 
 
   renovate:
