@@ -181,7 +181,7 @@ jobs:
           distribution: temurin
 
       - name: "Checkout ${{ github.ref }} ref in ${{ github.repository }} repository."
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
