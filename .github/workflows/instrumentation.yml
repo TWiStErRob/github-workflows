@@ -410,7 +410,8 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: '${{ format(inputs.name-artifact-merged, steps.emulator.outputs.api-level, steps.emulator.outputs.target, steps.emulator.outputs.arch) }}'
-          if-no-files-found: error
+          # TODO error, see https://github.com/TWiStErRob/net.twisterrob.gradle/issues/1038
+          if-no-files-found: warn
           path: |
             build/androidTest-results/
             
