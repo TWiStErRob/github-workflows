@@ -97,9 +97,10 @@ on:
       java-version:
         required: false
         type: number
-        default: 17
+        default: -1
         description: |
-          See actions/setup-java's java-version.
+          See actions/setup-java's java-version and java-version-file.
+          -1 will trigger the use of java-version-file, otherwise explicit version is used.
           Will use temurin distribution as it's preinstalled on GitHub Actions hosted runners.
 
       junit5:
@@ -175,6 +176,7 @@ jobs:
     steps:
 
       - name: "Set up Java ${{ inputs.java-version }}."
+        if: ${{ inputs.java-version != -1 }}
         uses: actions/setup-java@v5
         with:
           java-version: ${{ inputs.java-version }}
@@ -184,6 +186,13 @@ jobs:
         uses: actions/checkout@v6
         with:
           submodules: recursive
+
+      - name: "Set up Java."
+        if: ${{ inputs.java-version == -1 }}
+        uses: actions/setup-java@v5
+        with:
+          java-version: '.java-version'
+          distribution: temurin
 
       - name: "Set up Gradle."
         uses: gradle/actions/setup-gradle@v5
