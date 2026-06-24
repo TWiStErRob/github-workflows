@@ -252,7 +252,7 @@ jobs:
         if: ${{ inputs.cache }}
         id: avd-cache-restore
         # needs: cache-helper
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: ${{ steps.cache-helper.outputs.cache-paths }}
           key: ${{ steps.cache-helper.outputs.cache-key }}
@@ -280,7 +280,7 @@ jobs:
         id: avd-cache-save
         # needs: avd-cache-restore, cache-helper
         if: ${{ inputs.cache && steps.avd-cache-restore.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: ${{ steps.cache-helper.outputs.cache-paths }}
           key: ${{ steps.avd-cache-restore.outputs.cache-primary-key }}
