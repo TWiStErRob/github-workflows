@@ -157,7 +157,7 @@ jobs:
 
   android:
     name: "API ${{ inputs.android-api }}"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # GitHub can't do math, so this needs to be either an input, or a hard limit.
     timeout-minutes: 180
 
